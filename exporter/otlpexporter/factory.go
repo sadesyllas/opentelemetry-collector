@@ -5,6 +5,7 @@ package otlpexporter // import "go.opentelemetry.io/collector/exporter/otlpexpor
 
 import (
 	"context"
+	"go.opentelemetry.io/collector/exporter/otlpexporter/internal/telemetry"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configcompression"
@@ -56,6 +57,10 @@ func createTraces(
 	set exporter.Settings,
 	cfg component.Config,
 ) (exporter.Traces, error) {
+	err := telemetry.ConfigureCustomMetrics(&set.TelemetrySettings)
+	if err != nil {
+		return nil, err
+	}
 	oce := newExporter(cfg, set)
 	oCfg := cfg.(*Config)
 	return exporterhelper.NewTraces(ctx, set, cfg,

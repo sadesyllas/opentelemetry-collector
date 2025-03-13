@@ -6,6 +6,7 @@ package otlpexporter // import "go.opentelemetry.io/collector/exporter/otlpexpor
 import (
 	"context"
 	"fmt"
+	"go.opentelemetry.io/collector/exporter/otlpexporter/internal/telemetry"
 	"runtime"
 	"time"
 
@@ -95,6 +96,7 @@ func (e *baseExporter) pushTraces(ctx context.Context, td ptrace.Traces) error {
 	if err := processError(respErr); err != nil {
 		return err
 	}
+	telemetry.OTLPExportedTraceBytes.Add(ctx, int64(req.Size()))
 	partialSuccess := resp.PartialSuccess()
 	if !(partialSuccess.ErrorMessage() == "" && partialSuccess.RejectedSpans() == 0) {
 		e.settings.Logger.Warn("Partial success response",
